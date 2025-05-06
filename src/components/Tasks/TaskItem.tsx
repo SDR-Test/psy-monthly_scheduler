@@ -4,7 +4,7 @@ import { Task } from '@/lib/types';
 import { formatDate } from '@/lib/date-utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Trash, Edit } from 'lucide-react';
+import { Trash, Edit, Clock } from 'lucide-react';
 import { useTasks } from '@/context/TaskContext';
 
 interface TaskItemProps {
@@ -31,9 +31,11 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit }) => {
               {task.title}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-            <p className="text-xs font-medium text-foreground/70 mt-2">
-              마감일: {formatDate(task.dueDate, 'yyyy년 MM월 dd일')}
-            </p>
+            <div className="flex items-center gap-1 text-xs font-medium text-foreground/70 mt-2">
+              <span>마감일: {formatDate(task.dueDate, 'yyyy년 MM월 dd일')}</span>
+              <Clock className="h-3 w-3" />
+              <span>{formatDate(task.dueDate, 'HH:mm')}</span>
+            </div>
           </div>
         </div>
         <div className="flex gap-1">

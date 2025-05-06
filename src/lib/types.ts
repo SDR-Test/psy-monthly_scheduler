@@ -3,7 +3,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  dueDate: Date;
+  dueDate: Date; // 이미 Date 타입이므로 시간도 포함 가능
   priority: 'low' | 'medium' | 'high';
   completed: boolean;
   createdAt: Date;

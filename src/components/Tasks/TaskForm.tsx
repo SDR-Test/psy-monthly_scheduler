@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Clock } from 'lucide-react';
 
 interface TaskFormProps {
   editTask?: Task;
@@ -34,6 +34,21 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
   const [dueDate, setDueDate] = useState<Date | undefined>(editTask?.dueDate || new Date());
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(editTask?.priority || 'medium');
   const [error, setError] = useState<string | null>(null);
+  
+  // 시간 상태 추가
+  const [hours, setHours] = useState<string>(() => {
+    if (editTask?.dueDate) {
+      return String(editTask.dueDate.getHours()).padStart(2, '0');
+    }
+    return "09"; // 기본 시간 (9시)
+  });
+  
+  const [minutes, setMinutes] = useState<string>(() => {
+    if (editTask?.dueDate) {
+      return String(editTask.dueDate.getMinutes()).padStart(2, '0');
+    }
+    return "00"; // 기본 분 (0분)
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,12 +64,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
       return;
     }
     
+    // 날짜와 시간을 결합
+    const combinedDueDate = new Date(dueDate);
+    combinedDueDate.setHours(parseInt(hours), parseInt(minutes));
+    
     if (editTask) {
       // Update existing task
       updateTask(editTask.id, {
         title,
         description,
-        dueDate,
+        dueDate: combinedDueDate,
         priority,
       });
     } else {
@@ -62,7 +81,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
       addTask({
         title,
         description,
-        dueDate,
+        dueDate: combinedDueDate,
         priority,
         completed: false
       });
@@ -70,6 +89,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
     
     // Close form
     onSubmit();
+  };
+
+  // 시간 옵션을 생성하는 함수
+  const generateTimeOptions = (max: number, pad: boolean = true) => {
+    return Array.from({ length: max }, (_, i) => {
+      const value = String(i);
+      return pad ? value.padStart(2, '0') : value;
+    });
   };
 
   return (
@@ -100,28 +127,60 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
       {/* Due date picker */}
       <div className="space-y-2">
         <label className="text-sm font-medium">마감일</label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={`w-full justify-start text-left font-normal ${!dueDate ? "text-muted-foreground" : ""}`}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {dueDate ? format(dueDate, "PPP") : <span>날짜 선택</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={dueDate}
-              onSelect={(date) => {
-                setDueDate(date);
-                setError(null);
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={`flex-1 justify-start text-left font-normal ${!dueDate ? "text-muted-foreground" : ""}`}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dueDate ? format(dueDate, "yyyy년 MM월 dd일") : <span>날짜 선택</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 pointer-events-auto">
+              <Calendar
+                mode="single"
+                selected={dueDate}
+                onSelect={(date) => {
+                  setDueDate(date);
+                  setError(null);
+                }}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+        {/* Time picker */}
+        <div className="flex items-center gap-2 mt-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Select value={hours} onValueChange={setHours}>
+              <SelectTrigger className="w-[70px]">
+                <SelectValue placeholder="시간" />
+              </SelectTrigger>
+              <SelectContent>
+                {generateTimeOptions(24).map((hour) => (
+                  <SelectItem key={hour} value={hour}>{hour}시</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span>:</span>
+            <Select value={minutes} onValueChange={setMinutes}>
+              <SelectTrigger className="w-[70px]">
+                <SelectValue placeholder="분" />
+              </SelectTrigger>
+              <SelectContent>
+                {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map((minute) => (
+                  <SelectItem key={minute} value={minute}>{minute}분</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
         {error && !dueDate && (
           <p className="text-sm text-red-500">{error}</p>
         )}

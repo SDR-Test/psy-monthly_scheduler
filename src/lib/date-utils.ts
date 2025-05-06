@@ -33,6 +33,11 @@ export const formatDate = (date: Date, formatString: string): string => {
   return format(date, formatString);
 };
 
+// Format date with time
+export const formatDateWithTime = (date: Date): string => {
+  return format(date, "yyyy년 MM월 dd일 HH:mm");
+};
+
 // Sort tasks by due date (earliest first)
 export const sortTasksByDueDate = (a: { dueDate: Date }, b: { dueDate: Date }): number => {
   return a.dueDate.getTime() - b.dueDate.getTime();
