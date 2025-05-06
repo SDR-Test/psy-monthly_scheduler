@@ -68,6 +68,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
     const combinedDueDate = new Date(dueDate);
     combinedDueDate.setHours(parseInt(hours), parseInt(minutes));
     
+    // 과거 날짜 검증
+    const now = new Date();
+    if (combinedDueDate < now) {
+      setError('과거 날짜에는 태스크를 등록할 수 없습니다');
+      return;
+    }
+    
     if (editTask) {
       // Update existing task
       updateTask(editTask.id, {
@@ -97,6 +104,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
       const value = String(i);
       return pad ? value.padStart(2, '0') : value;
     });
+  };
+
+  // 오늘 날짜 이전의 날짜를 비활성화하는 함수
+  const isPastDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
   };
 
   return (
@@ -132,7 +146,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={`flex-1 justify-start text-left font-normal ${!dueDate ? "text-muted-foreground" : ""}`}
+                className={cn(
+                  "flex-1 justify-start text-left font-normal",
+                  !dueDate && "text-muted-foreground",
+                  error && error.includes('과거 날짜') && "border-red-500"
+                )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {dueDate ? format(dueDate, "yyyy년 MM월 dd일") : <span>날짜 선택</span>}
@@ -146,6 +164,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
                   setDueDate(date);
                   setError(null);
                 }}
+                disabled={isPastDate}
                 initialFocus
                 className="pointer-events-auto"
               />
@@ -181,7 +200,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ editTask, onSubmit }) => {
           </div>
         </div>
         
-        {error && !dueDate && (
+        {error && (
           <p className="text-sm text-red-500">{error}</p>
         )}
       </div>

@@ -42,3 +42,16 @@ export const formatDateWithTime = (date: Date): string => {
 export const sortTasksByDueDate = (a: { dueDate: Date }, b: { dueDate: Date }): number => {
   return a.dueDate.getTime() - b.dueDate.getTime();
 };
+
+// Check if a date is in the past
+export const isPastDate = (date: Date): boolean => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+};
+
+// Check if a date+time is in the past
+export const isPastDateTime = (date: Date): boolean => {
+  const now = new Date();
+  return date < now;
+};

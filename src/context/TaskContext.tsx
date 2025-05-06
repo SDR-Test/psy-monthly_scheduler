@@ -2,6 +2,7 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { Task, TaskContextType } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
+import { isPastDateTime } from '@/lib/date-utils';
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
@@ -32,6 +33,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   }, [tasks]);
 
   const addTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    // 과거 날짜 검증
+    if (isPastDateTime(taskData.dueDate)) {
+      toast({
+        title: "오류",
+        description: "과거 날짜에는 태스크를 등록할 수 없습니다.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const newTask: Task = {
       ...taskData,
       id: crypto.randomUUID(),
@@ -48,6 +59,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateTask = (id: string, taskData: Partial<Task>) => {
+    // 날짜가 변경되었고 과거 날짜로 설정하려는 경우 검증
+    if (taskData.dueDate && isPastDateTime(taskData.dueDate)) {
+      toast({
+        title: "오류",
+        description: "과거 날짜로 변경할 수 없습니다.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setTasks(prevTasks => 
       prevTasks.map(task => 
         task.id === id ? { ...task, ...taskData } : task
