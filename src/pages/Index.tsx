@@ -4,6 +4,7 @@ import { TaskProvider } from '@/context/TaskContext';
 import Header from '@/components/Layout/Header';
 import MonthCalendar from '@/components/Calendar/MonthCalendar';
 import TaskList from '@/components/Tasks/TaskList';
+import TaskNotifications from '@/components/Tasks/TaskNotifications';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
@@ -12,6 +13,7 @@ const Index = () => {
     <TaskProvider>
       <div className="min-h-screen flex flex-col">
         <Header />
+        <TaskNotifications />
         
         <main className="flex-grow container py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

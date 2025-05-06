@@ -35,7 +35,9 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     const newTask: Task = {
       ...taskData,
       id: crypto.randomUUID(),
-      createdAt: new Date()
+      createdAt: new Date(),
+      notifiedCloseDue: false,
+      notifiedOverdue: false
     };
     
     setTasks(prevTasks => [...prevTasks, newTask]);

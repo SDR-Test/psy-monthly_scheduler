@@ -7,6 +7,8 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
   completed: boolean;
   createdAt: Date;
+  notifiedCloseDue?: boolean;
+  notifiedOverdue?: boolean;
 }
 
 export interface TaskContextType {
